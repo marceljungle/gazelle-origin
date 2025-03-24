@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-from dataclasses import dataclass
 import argparse
 import io
 import os
 import re
 import subprocess
 import sys
+from dataclasses import dataclass
+
 from dotenv import dotenv_values
-from typing import Dict
 
 try:
     import bencoder
+
     has_bencoder = True
 except ModuleNotFoundError:
     has_bencoder = False
@@ -18,7 +19,6 @@ except ModuleNotFoundError:
 import yaml
 from hashlib import sha1
 from . import GazelleAPI, GazelleAPIError
-
 
 EXIT_CODES = {
     'hash': 3,
@@ -31,22 +31,24 @@ EXIT_CODES = {
     'input-error': 10
 }
 
+
 @dataclass
 class TrackerData:
     base_url: str
-    api_key_env: str # name of the api key environmental variable
+    api_key_env: str  # name of the api key environmental variable
     aliases: list[str]
     api_key: str = None
 
 
 TRACKERS = [
     TrackerData(base_url="https://redacted.sh",
-            api_key_env="RED_API_KEY",
-            aliases=["red", "flacsfor.me"]),
+                api_key_env="RED_API_KEY",
+                aliases=["red", "flacsfor.me"]),
     TrackerData(base_url="https://orpheus.network",
-            api_key_env="OPS_API_KEY",
-            aliases=["ops", "opsfet.ch"])
+                api_key_env="OPS_API_KEY",
+                aliases=["ops", "opsfet.ch"])
 ]
+
 
 class GazelleOrigin:
     def __init__(self, argv=None):
@@ -61,13 +63,18 @@ class GazelleOrigin:
                    '  redacted.sh: "RED", or any string containing "flacsfor.me"\n'
                    '  orpheus.network: "OPS", or any string containing "opsfet.ch"'
         )
-        parser.add_argument('torrent', nargs='+', help='torrent identifier, which can be either its info hash, torrent ID, permalink, or path to torrent file(s) whose name or computed info hash should be used')
+        parser.add_argument('torrent', nargs='+',
+                            help='torrent identifier, which can be either its info hash, torrent ID, permalink, or path to torrent file(s) whose name or computed info hash should be used')
         parser.add_argument('--out', '-o', help='Path to write origin data (default: print to stdout).', metavar='file')
-        parser.add_argument('--ORIGIN_TRACKER','--tracker', '-t', metavar='tracker',default=os.environ.get("ORIGIN_TRACKER"), help='Tracker to use. Optional if the ORIGIN_TRACKER environment variable is set.')
-        parser.add_argument('--api-key', metavar='key', help='API key. Optional if the <TRACKER>_API_KEY (e.g., RED_API_KEY) environment variable is set.')
+        parser.add_argument('--ORIGIN_TRACKER', '--tracker', '-t', metavar='tracker',
+                            default=os.environ.get("ORIGIN_TRACKER"),
+                            help='Tracker to use. Optional if the ORIGIN_TRACKER environment variable is set.')
+        parser.add_argument('--api-key', metavar='key',
+                            help='API key. Optional if the <TRACKER>_API_KEY (e.g., RED_API_KEY) environment variable is set.')
         parser.add_argument('--env', '-e', nargs=1, metavar='file', help='file to load environment variables from')
-        parser.add_argument('--post', '-p', nargs='+', metavar='file', default=[], help='script(s) to run after each output is written.\n'
-                            'These scripts have access to environment variables with info about the item including OUT, ARTIST, NAME, DIRECTORY, EDITION, YEAR, FORMAT, ENCODING')
+        parser.add_argument('--post', '-p', nargs='+', metavar='file', default=[],
+                            help='script(s) to run after each output is written.\n'
+                                 'These scripts have access to environment variables with info about the item including OUT, ARTIST, NAME, DIRECTORY, EDITION, YEAR, FORMAT, ENCODING')
         parser.add_argument('--recursive', '-r', action='store_true', help='recursively search directories for files')
         parser.add_argument('--no-hash', '-n', action='store_true', help='don\'t compute hash from torrent files')
         parser.add_argument(
@@ -78,10 +85,12 @@ class GazelleOrigin:
             nargs="?",
             choices=["stop", "ask", "continue"],
             help="Stop, ask, or continue when encountering an error (default: %(default)s)")
-        parser.add_argument('--deduplicate', '-d', action='store_true', help='if specified, only one torrent with any given id/hash will be fetched')
+        parser.add_argument('--deduplicate', '-d', action='store_true',
+                            help='if specified, only one torrent with any given id/hash will be fetched')
 
         for tracker in TRACKERS:
-            parser.add_argument('--' + tracker.api_key_env, help=argparse.SUPPRESS, default=os.environ.get(tracker.api_key_env))
+            parser.add_argument('--' + tracker.api_key_env, help=argparse.SUPPRESS,
+                                default=os.environ.get(tracker.api_key_env))
 
         # First, check if "--env" is provided. If it is, set the default arguments to the values in the file, then parse arguments again.
         # This ensures that the command line options override the env file, which overrides environmental variables.
@@ -128,7 +137,6 @@ class GazelleOrigin:
 
         self.args = args
 
-
     def ask_invalid(self):
         """Prompt the user for the next action after encountering an error."""
         do_this = ""
@@ -143,7 +151,6 @@ class GazelleOrigin:
             do_this = 'stop'
         return do_this
 
-
     def handle_invalid(self):
         """Handle an invalid torrent error."""
         if self.args.ignore_invalid == "continue":
@@ -153,7 +160,6 @@ class GazelleOrigin:
             return result
         else:
             return 'stop'
-
 
     def run(self):
         for torrent in self.args.torrent:
@@ -192,7 +198,8 @@ class GazelleOrigin:
                         return {'hash': info_hash}
                 else:
                     print('Found torrent file ' + torrent + ' but unable to load bencoder module to compute hash')
-                    print('Install bencoder (pip install bencoder) then try again or pass --no-hash to not compute the hash')
+                    print(
+                        'Install bencoder (pip install bencoder) then try again or pass --no-hash to not compute the hash')
                     if self.handle_invalid() != "stop":
                         return None
                     else:
@@ -254,14 +261,21 @@ class GazelleOrigin:
             print(info, end='')
 
         if self.args.post:
-            fetched_info = yaml.load(info, Loader=yaml.SafeLoader)
+            cleaned_info = self.remove_non_printable_yaml_chars(info)
+            fetched_info = yaml.load(cleaned_info, Loader=yaml.SafeLoader)
             for script in self.args.post:
-                subprocess.run(script, shell=True, env={k.upper(): str(v) for k, v in {**vars(self.args), **fetched_info}.items()})
+                subprocess.run(script, shell=True,
+                               env={k.upper(): str(v) for k, v in {**vars(self.args), **fetched_info}.items()})
 
+    @staticmethod
+    def remove_non_printable_yaml_chars(s):
+        # Removes control characters (except tab, LF, CR)
+        return re.sub(r'[^\x09\x0A\x0D\x20-\x7E\u00A0-\uFFFF]', '', s)
 
 def main(argv=None):
     gazelle_origin = GazelleOrigin(argv)
     gazelle_origin.run()
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
