@@ -134,7 +134,7 @@ class GazelleAPI:
             'Log':                     '{0}%'.format(torrent['logScore']) if torrent['hasLog'] else '',
             'Format':                  torrent['format'],
             'Encoding':                torrent['encoding'],
-            'Directory':               torrent['filePath'],
+            'Directory':               html.unescape(torrent['filePath']),
             'Size':                    torrent['size'],
             'File count':              torrent['fileCount'],
             'Info hash':               torrent.get("infoHash", hash or "Unknown"), # OPS fallback

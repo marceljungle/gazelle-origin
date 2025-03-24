@@ -18,7 +18,7 @@ except ModuleNotFoundError:
 
 import yaml
 from hashlib import sha1
-from . import GazelleAPI, GazelleAPIError
+from core import GazelleAPI, GazelleAPIError
 
 EXIT_CODES = {
     'hash': 3,
