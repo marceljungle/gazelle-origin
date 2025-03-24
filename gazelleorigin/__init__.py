@@ -1,1 +1,1 @@
-from .core import GazelleAPI, GazelleAPIError
+from gazelleorigin.core import GazelleAPI, GazelleAPIError
