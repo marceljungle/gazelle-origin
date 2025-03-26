@@ -165,7 +165,10 @@ class GazelleAPI:
         groupDescription = html.unescape(description_raw).strip('\r\n')
 
         if groupDescription:
-            groupDescription = textwrap.indent(groupDescription, '  ', lambda line: True)
-            result += '\n\nDescription: |-\n{0}\n\n'.format(groupDescription)
+            # Normalize all lines to have 2 spaces
+            lines = groupDescription.splitlines()
+            normalized = '\n'.join('  ' + line.lstrip() for line in lines)
+
+            result += '\n\nDescription: |-\n{0}\n\n'.format(normalized)
 
         return result
