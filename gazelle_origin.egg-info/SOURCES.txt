@@ -1,0 +1,12 @@
+README.md
+setup.py
+gazelle_origin.egg-info/PKG-INFO
+gazelle_origin.egg-info/SOURCES.txt
+gazelle_origin.egg-info/dependency_links.txt
+gazelle_origin.egg-info/entry_points.txt
+gazelle_origin.egg-info/requires.txt
+gazelle_origin.egg-info/top_level.txt
+gazelleorigin/__init__.py
+gazelleorigin/__main__.py
+gazelleorigin/core.py
+tests/test_gazelle_origin.py
