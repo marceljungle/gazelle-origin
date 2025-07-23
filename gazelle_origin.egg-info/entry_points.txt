@@ -1,2 +1,0 @@
-[console_scripts]
-gazelle-origin = gazelleorigin.__main__:main
