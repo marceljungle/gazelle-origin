@@ -145,7 +145,7 @@ Installation
 
 Install using `pip`:
 
-    $> pip install git+https://github.com/spinfast319/gazelle-origin
+    $> pip install git+https://github.com/marceljungle/gazelle-origin
 
 Then add your tracker API key (see [Obtaining Your API Key](https://github.com/x1ppy/gazelle-origin#obtaining-your-api-key)) to `~/.bashrc` or equivalent:
 
@@ -171,7 +171,7 @@ Uninstall through 'pip':
     
 Then re-install with 'pip' but from this fork:
 
-    $> pip install git+https://github.com/spinfast319/gazelle-origin
+    $> pip install git+https://github.com/marceljungle/gazelle-origin
     
 Obtaining Your API Key
 ---------------------
@@ -287,7 +287,7 @@ Or you can manually go through your existing downloads and populate them with or
     
 Managing a large music library with origin files
 -----------
-This script provides data that, when used in conjunction with other scripts, can let you manage a large music library when the source of the music has good metadata you want to use to organize it.  You can find an overview of the scripts and workflow at [Origin-Music-Management](https://github.com/spinfast319/Origin-Music-Management). 
+This script provides data that, when used in conjunction with other scripts, can let you manage a large music library when the source of the music has good metadata you want to use to organize it.  You can find an overview of the scripts and workflow at [Origin-Music-Management](https://github.com/marceljungle/Origin-Music-Management). 
 
 Integration
 -----------
@@ -305,7 +305,7 @@ If you use a linuxserver docker image such as [linuxserver/rutorrent](https://hu
 environment:
   - DOCKER_MODS=linuxserver/mods:universal-package-install
   - INSTALL_PACKAGES=git
-  - INSTALL_PIP_PACKAGES=git+https://github.com/spinfast319/gazelle-origin
+  - INSTALL_PIP_PACKAGES=git+https://github.com/marceljungle/gazelle-origin
 ~~~
 
 #### rtorrent
