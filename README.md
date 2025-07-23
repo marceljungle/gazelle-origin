@@ -204,8 +204,10 @@ Usage
 -----
 
 ~~~
-usage: gazelle-origin [-h] [--out file] [--tracker tracker] [--env file]
-                      [--post file [file ...]] [--recursive] [--no-hash]
+usage: gazelle-origin [-h] [--out file] [--ORIGIN_TRACKER tracker]
+                      [--api-key key] [--env file] [--post file [file ...]]
+                      [--recursive] [--no-hash]
+                      [--ignore-invalid [{stop,ask,continue}]] [--deduplicate]
                       torrent [torrent ...]
 
 Fetches torrent origin information from Gazelle-based music trackers
@@ -215,11 +217,14 @@ positional arguments:
                         torrent ID, permalink, or path to torrent file(s)
                         whose name or computed info hash should be used
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  --out file, -o file   path to write origin data (default: print to stdout)
-  --tracker tracker, -t tracker
-                        tracker to use
+  --out file, -o file   Path to write origin data (default: print to stdout).
+  --ORIGIN_TRACKER tracker, --tracker tracker, -t tracker
+                        Tracker to use. Optional if the ORIGIN_TRACKER
+                        environment variable is set.
+  --api-key key         API key. Optional if the <TRACKER>_API_KEY (e.g.,
+                        RED_API_KEY) environment variable is set.
   --env file, -e file   file to load environment variables from
   --post file [file ...], -p file [file ...]
                         script(s) to run after each output is written. These
@@ -228,10 +233,15 @@ optional arguments:
                         EDITION, YEAR, FORMAT, ENCODING
   --recursive, -r       recursively search directories for files
   --no-hash, -n         don't compute hash from torrent files
+  --ignore-invalid [{stop,ask,continue}], -i [{stop,ask,continue}]
+                        Stop, ask, or continue when encountering an error
+                        (default: ask)
+  --deduplicate, -d     if specified, only one torrent with any given id/hash
+                        will be fetched
 
---tracker is optional if the ORIGIN_TRACKER environment variable is set.
-
-If provided, --tracker must be set to one of the following: red
+Either ORIGIN_TRACKER or --tracker must be set to a supported tracker:
+  redacted.sh: "RED", or any string containing "flacsfor.me"
+  orpheus.network: "OPS", or any string containing "opsfet.ch"
 ~~~
 
 Examples
@@ -283,6 +293,28 @@ Or you can manually go through your existing downloads and populate them with or
     $> cd /path/to/another/torrent
     $> gazelle-origin -o origin.yaml "https://redacted.sh/torrents.php?torrentid=2"
     $> ...
+
+### Advanced Options
+
+The following additional options are available for more advanced usage:
+
+**Error Handling (`--ignore-invalid`)**
+Control what happens when an error is encountered:
+- `stop`: Stop processing immediately when an error occurs
+- `ask`: Prompt the user for what to do (default)
+- `continue`: Continue processing remaining torrents despite errors
+
+    $> gazelle-origin --ignore-invalid continue ./torrents
+
+**Deduplication (`--deduplicate`)**
+Ensure each torrent is only fetched once, even if specified multiple times:
+
+    $> gazelle-origin --deduplicate 1 1 2 2 3  # Only fetches torrents 1, 2, and 3 once each
+
+**API Key (`--api-key`)**
+Specify the API key directly instead of using environment variables:
+
+    $> gazelle-origin --api-key YOUR_API_KEY --tracker red 1
     
     
 Managing a large music library with origin files
@@ -363,6 +395,13 @@ With lidarr, downloading origin files and running beets with [beets-originquery]
 
 Changelog
 ---------
+### [3.0.1] - 2023-01-01
+* Added `--ignore-invalid` option to control behavior when encountering errors
+* Added `--deduplicate` option to avoid fetching duplicate torrents
+* Added `--api-key` option for specifying API key directly via command line
+* Enhanced tracker support with both orpheus.network (OPS) and redacted.sh (RED)
+* Updated repository URL and installation instructions
+
 ### [3.0.0] - 2022-05-25
 * Added additional metadata and re-ordered yaml file from spinfast319 and RollingStar forks
 * Metadata added: Tags, Release type, Main artists, Featured artists, Producers, Remix artists, DJs, Composers, Conductors, Original release label, Original catalog number, Cover, Description
@@ -389,6 +428,7 @@ Changelog
 ### [1.0.0] - 2020-03-24
 * First tagged release
 
+[3.0.1]: https://github.com/marceljungle/gazelle-origin/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/x1ppy/gazelle-origin/compare/2.2.1...spinfast319:master
 [2.2.1]: https://github.com/x1ppy/gazelle-origin/compare/2.2.0...2.2.1
 [2.2.0]: https://github.com/x1ppy/gazelle-origin/compare/2.1.1...2.2.0
