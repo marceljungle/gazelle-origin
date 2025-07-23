@@ -401,6 +401,11 @@ Changelog
 * Added `--api-key` option for specifying API key directly via command line
 * Enhanced tracker support with both orpheus.network (OPS) and redacted.sh (RED)
 * Updated repository URL and installation instructions
+* **Fixed control characters breaking `yaml.load()`** - Added sanitization step to strip unprintable control characters from YAML strings before loading
+* **Fixed HTML-escaped Unicode in file paths** - Applied `html.unescape()` to `torrent['filePath']` to properly handle encoded characters in Linux environments
+* **Fixed crashes with empty torrent descriptions** - Added fallback to empty string when torrent description is `None` to prevent `html.unescape()` crashes
+* **Fixed invalid YAML due to inconsistent indentation** - Normalized indentation in `Description` blocks using `.lstrip()` and uniform padding to prevent YAML parsing errors
+* **Enhanced debugging capabilities** - Script is now debuggable via `python -m` thanks to improved import structure
 
 ### [3.0.0] - 2022-05-25
 * Added additional metadata and re-ordered yaml file from spinfast319 and RollingStar forks
