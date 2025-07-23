@@ -395,7 +395,7 @@ With lidarr, downloading origin files and running beets with [beets-originquery]
 
 Changelog
 ---------
-### [3.0.1] - 2023-01-01
+### [3.0.1] - 2025-07-23
 * **Fixed control characters breaking `yaml.load()`** - Added sanitization step to strip unprintable control characters from YAML strings before loading
 * **Fixed HTML-escaped Unicode in file paths** - Applied `html.unescape()` to `torrent['filePath']` to properly handle encoded characters in Linux environments
 * **Fixed crashes with empty torrent descriptions** - Added fallback to empty string when torrent description is `None` to prevent `html.unescape()` crashes
